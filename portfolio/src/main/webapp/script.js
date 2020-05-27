@@ -26,3 +26,21 @@ function addRandomGreeting() {
   const greetingContainer = document.getElementById('greeting-container');
   greetingContainer.innerText = greeting;
 }
+
+function composeWorld(f) {
+    return f('world')
+}
+
+function Greet(name) {
+    return (punctuation) => `Hello ${name}${punctuation}`
+}
+
+function addHappiness(item) {
+    return item + ' 😂'
+}
+
+function init() {
+    composeWorld(Greet)('!').split(' ').map(addHappiness).forEach(word => alert(word))
+}
+
+init()
