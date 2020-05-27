@@ -31,7 +31,7 @@ function composeWorld(f) {
     return f('world')
 }
 
-function Greet(name) {
+function greet(name) {
     return (punctuation) => `Hello ${name}${punctuation}`
 }
 
