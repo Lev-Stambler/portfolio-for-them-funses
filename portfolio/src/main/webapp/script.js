@@ -40,7 +40,7 @@ function addHappiness(item) {
 }
 
 function init() {
-    composeWorld(Greet)('!').split(' ').map(addHappiness).forEach(word => alert(word))
+    composeWorld(greet)('!').split(' ').map(addHappiness).forEach(word => alert(word))
 }
 
 init()
