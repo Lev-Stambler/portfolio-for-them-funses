@@ -28,19 +28,19 @@ function addRandomGreeting() {
 }
 
 function composeWorld(f) {
-    return f('world')
+    return f('world');
 }
 
 function greet(name) {
-    return (punctuation) => `Hello ${name}${punctuation}`
+    return (punctuation) => `Hello ${name}${punctuation}`;
 }
 
 function addHappiness(item) {
-    return item + ' 😂'
+    return item + ' 😂';
 }
 
 function init() {
-    composeWorld(greet)('!').split(' ').map(addHappiness).forEach(word => alert(word))
+    composeWorld(greet)('!').split(' ').map(addHappiness).forEach(word => alert(word));
 }
 
-init()
+init();
