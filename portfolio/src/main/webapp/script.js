@@ -39,8 +39,40 @@ function addHappiness(item) {
     return item + ' 😂';
 }
 
-function init() {
-    composeWorld(greet)('!').split(' ').map(addHappiness).forEach(word => alert(word));
+
+async function updateMaxComments() {
+    const maxComments = document.querySelector("#maxComments--number-input").value;
+    await getData(maxComments);
 }
 
-init();
+async function deleteComments() {
+    try {
+        const ret = await fetch('/delete-data', {
+            method: "POST"
+        })
+        alert("A truly sad day, your comments were deleted");
+        await getData();
+    } catch (e) {
+        alert("Something went wrong in deleting your comments");
+    }
+}
+
+async function getData(maxComments=10) {
+    try {
+        const ret = await fetch('/data?maxComments=' + maxComments);
+        const comments = await ret.json();
+        const commentDiv = document.querySelector('#comments');
+        commentDiv.innerHTML = "";
+        comments.forEach((comment, i) =>
+            commentDiv.innerHTML += `<p>Comment ${i + 1} is ${comment}</p>`);
+    } catch (e) {
+        alert(`Hey!! There was an error: ${e?.message || e}`);
+    }
+}
+
+function init() {
+    composeWorld(greet)('!').split(' ').map(addHappiness).forEach(word => alert(word));
+    getData();
+}
+
+window.onload = init

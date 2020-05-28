@@ -8,8 +8,13 @@
   margin-top: 20px;
 }
 
-.h1--container {
+form {
+    padding: 2rem;
+}
 
+form input {
+    display: block;
+    padding: 0.8rem;
 }
 
 h1 {
