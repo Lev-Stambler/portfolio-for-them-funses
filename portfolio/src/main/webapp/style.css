@@ -8,10 +8,6 @@
   margin-top: 20px;
 }
 
-.h1--container {
-
-}
-
 h1 {
     animation: SpinAndWin 1000ms ease-in-out infinite alternate;
     display: inline-block;
