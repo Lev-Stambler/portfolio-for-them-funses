@@ -22,11 +22,26 @@
           </div>
       </h3>
       <iframe src="https://lev-stambler.github.io/Portfolio/"></iframe>
-      <p>Or go to my portfolio site by clicking <a href="https://lev-stambler.github.io/Portfolio/">this link.</a> I made it using a custom frontend framework I created in 2018 named trivial.JS</p>
-
-      <p>Click here to get a random message:</p>
-      <button onclick="addRandomGreeting()">Hello</button>
-      <div id="greeting-container"></div>
+      <p>Or go to my portfolio sit be clicking <a href="https://lev-stambler.github.io/Portfolio/">This link.</a> I made it using a custom frontend framework I created in 2018 named trivial.JS</p>
+      <br />
+      <form method="POST" action="/data">
+        <input type="text" name="comment" placeholder="Add a comment!" />
+        <input type="checkbox" id="shouldAddComment--checkbox" name="shouldAddComment" value="true" />
+        <label for="shouldAddComment--checkbox">Do you really want to do this?</label>
+        <input type="submit" />
+      </form>
+      <form onsubmit="updateMaxComments(); return false;">
+        <input type="number" id="maxComments--number-input" min="0" max="99" placeholder="Maximum number of comments" />
+        <input type="submit" value="Update that max!" />
+      </form>
+      <form onsubmit="deleteComments(); return false;">
+        <input type="submit" value="Delete your comments ;(" />
+      </form>
+      <div id="comment--container">
+          <h2>Your comments</h2>
+          <br/><br/>
+          <div id="comments"></div>
+      </div>
     </div>
   </body>
 </html>
