@@ -39,7 +39,6 @@ function addHappiness(item) {
     return item + ' 😂';
 }
 
-
 async function updateMaxComments() {
     const maxComments = document.querySelector("#maxComments--number-input").value;
     await getData(maxComments);
@@ -75,4 +74,4 @@ function init() {
     getData();
 }
 
-window.onload = init
+window.onload = init;
