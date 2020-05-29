@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+let defaultMaxComments = 10;
+
 /**
  * Adds a random greeting to the page.
  */
@@ -41,6 +43,7 @@ function addHappiness(item) {
 
 async function updateMaxComments() {
     const maxComments = document.querySelector("#maxComments--number-input").value;
+    defaultMaxComments = maxComments; 
     await getData(maxComments);
 }
 
@@ -56,7 +59,8 @@ async function deleteComments() {
     }
 }
 
-async function getData(maxComments=10) {
+async function getData(maxComments) {
+    if (!maxComments) maxComments = defaultMaxComments;
     try {
         const ret = await fetch('/data?maxComments=' + maxComments);
         const comments = await ret.json();

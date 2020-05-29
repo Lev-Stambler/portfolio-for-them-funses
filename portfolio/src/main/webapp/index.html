@@ -26,8 +26,10 @@
       <br />
       <form method="POST" action="/data">
         <input type="text" name="comment" placeholder="Add a comment!" />
-        <input type="checkbox" id="shouldAddComment--checkbox" name="shouldAddComment" value="true" />
-        <label for="shouldAddComment--checkbox">Do you really want to do this?</label>
+        <label>
+            <input type="checkbox" name="shouldAddComment" value="true" />
+            Do you really want to do this?
+        </label>
         <input type="submit" />
       </form>
       <form onsubmit="updateMaxComments(); return false;">
