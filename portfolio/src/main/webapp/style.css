@@ -7,3 +7,43 @@
 #greeting-container {
   margin-top: 20px;
 }
+
+h1 {
+    animation: SpinAndWin 1000ms ease-in-out infinite alternate;
+    display: inline-block;
+    background: linear-gradient(to right, orange , yellow, green, cyan, blue, violet);
+    background-size: 200% 100%;
+    transform: rotate(-45deg) scale(2);
+}
+
+iframe {
+    min-height: 300px;
+    width: 100%;
+    padding: 1rem 5rem;
+}
+
+.upside-down {
+    transform: rotate(180deg);
+    display: inline-block;
+    width: 100px;
+    height: 100px;
+}
+
+.upside-down img {
+    width: 100%;
+}
+
+@keyframes SpinAndWin {
+    0% {
+        transform: rotate(-45deg) scale(2);
+        background-position: 0% 0%;
+    }
+    50% {
+        transform: rotate(0deg) scale(1);
+        background-position: 50% 0%;
+    }
+    100% {
+        transform: rotate(45deg) scale(2);
+        background-position: 0% 50%;
+    }
+}
