@@ -8,6 +8,15 @@
   margin-top: 20px;
 }
 
+form {
+    padding: 2rem;
+}
+
+form input {
+    display: block;
+    padding: 0.8rem;
+}
+
 h1 {
     animation: SpinAndWin 1000ms ease-in-out infinite alternate;
     display: inline-block;
