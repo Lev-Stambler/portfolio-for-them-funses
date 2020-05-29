@@ -22,12 +22,11 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import java.util.ArrayList;
 
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
@@ -43,13 +42,13 @@ public class DataServlet extends HttpServlet {
     Query query = new Query("Comment");
     PreparedQuery results = datastore.prepare(query);
     
+    // extract only the max number of comments into an ArrayList
     for (Entity ent : results.asIterable()) {
       String comment = (String) ent.getProperty("body");
       comments.add(comment);
       if (comments.size() >= maxComments)
         break;
     }
-
     String jsonStr = gson.toJson(comments);
     response.setContentType("application/json");
     response.getWriter().println(jsonStr);
@@ -69,7 +68,6 @@ public class DataServlet extends HttpServlet {
       datastore.put(commentEntity);
     }
     response.sendRedirect("/");
-    
   }
 
   /**
