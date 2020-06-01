@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>My Portfolio</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQ2pBJaaQ0JIitodS6-sbHfie2Qosefxg"></script>
     <script src="script.js"></script>
   </head>
   <body>
@@ -39,10 +40,13 @@
       <form onsubmit="deleteComments(); return false;">
         <input type="submit" value="Delete your comments ;(" />
       </form>
-      <div id="comment--container">
-          <h2>Your comments</h2>
-          <br/><br/>
-          <div id="comments"></div>
+      <div id="comment-container">
+        <h2>Your comments</h2>
+        <br/><br/>
+        <div id="comments"></div>
+      </div>
+      <div class="maps-container">
+        <div id="map"></div>
       </div>
     </div>
   </body>
