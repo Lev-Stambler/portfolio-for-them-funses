@@ -56,3 +56,16 @@ iframe {
         background-position: 0% 50%;
     }
 }
+
+.maps-container {
+    width: 100%;
+    display: grid;
+    justify-content: center;
+}
+
+#map {
+    padding: 1rem;
+    border: 3px dashed black;
+    height: 500px;
+    width: 500px;
+}

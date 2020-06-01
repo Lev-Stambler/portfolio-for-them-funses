@@ -59,6 +59,43 @@ async function deleteComments() {
     }
 }
 
+/** Creates a map and adds it to the page. */
+function createMap() {
+  const chiangMaiCoords = {
+    lat: 18.7953, lng: 98.9620
+  }
+  const buenosAiresCoords = {
+    lat: -34.6037, lng: -58.3816
+  }
+  const map = new google.maps.Map(
+    document.getElementById('map'),
+    {center: {lat: 37.422, lng: -122.084}, zoom: 1});
+  const markerChiangMai = new google.maps.Marker({
+    position: chiangMaiCoords,
+    map: map,
+    title: 'Chiang Mai',
+    icon: 'static/icons/icons8-party-100.png'
+  });
+  const markerBuenosAires = new google.maps.Marker({
+    position: buenosAiresCoords,
+    map: map,
+    title: 'Buenos Aires',
+    icon: 'static/icons/icons8-party-100.png'
+  });
+  const markers = [markerBuenosAires, markerChiangMai];
+  markers.forEach(marker => {
+    const infowindow = new google.maps.InfoWindow({
+      content: `<div>
+  <p>Check it out! I would like to travel to ${marker.title}</p>
+  <p>Let me know what you think?</p>
+</div>`
+    });
+    marker.addListener('click', function() {
+      infowindow.open(map, marker);
+    });
+  })
+}
+
 async function getData(maxComments) {
     if (!maxComments) maxComments = defaultMaxComments;
     try {
@@ -76,6 +113,7 @@ async function getData(maxComments) {
 function init() {
     composeWorld(greet)('!').split(' ').map(addHappiness).forEach(word => alert(word));
     getData();
+    createMap();
 }
 
 window.onload = init;
