@@ -30,21 +30,21 @@ function addRandomGreeting() {
 }
 
 function composeWorld(f) {
-    return f('world');
+  return f('world');
 }
 
 function greet(name) {
-    return (punctuation) => `Hello ${name}${punctuation}`;
+  return (punctuation) => `Hello ${name}${punctuation}`;
 }
 
 function addHappiness(item) {
-    return item + ' 😂';
+  return item + ' 😂';
 }
 
 async function updateMaxComments() {
-    const maxComments = document.querySelector("#maxComments--number-input").value;
-    defaultMaxComments = maxComments; 
-    await getData(maxComments);
+  const maxComments = document.querySelector("#maxComments--number-input").value;
+  defaultMaxComments = maxComments; 
+  await getData(maxComments);
 }
 
 async function deleteComments() {
@@ -57,6 +57,44 @@ async function deleteComments() {
     } catch (e) {
         alert("Something went wrong in deleting your comments");
     }
+}
+
+/** a map of the countries with the highest happiness score */
+class HappinessChart {
+  constructor(divID) {
+    google.charts.load('current', {
+      'packages':['geochart'],
+      // Note: you will need to get a mapsApiKey for your project.
+      // See: https://developers.google.com/chart/interactive/docs/basic_load_libs#load-settings
+      'mapsApiKey': 'AIzaSyCQ2pBJaaQ0JIitodS6-sbHfie2Qosefxg'
+    });
+    google.charts.setOnLoadCallback(async () => {
+      const happiestCountries = await this.getHappiestCountries();
+      console.log(happiestCountries)
+      const data = this.buildDataTable(happiestCountries);
+      this.drawRegionsMap(divID, data);
+    });
+  }
+
+  async getHappiestCountries() {
+    const ret = await fetch('/static/data/happiest_countries.json');
+    const countries = await ret.json();
+    return countries.data.map((country) => [country.name, parseFloat(country.happinessScore)])
+  }
+
+  buildDataTable(happinessArray) {
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Country');
+    data.addColumn('number', 'Happiness Ranking');
+    data.addRows(happinessArray);
+    return data;
+  }
+
+  drawRegionsMap(divID, data) {
+    var options = {};
+    var chart = new google.visualization.GeoChart(document.getElementById(divID));
+    chart.draw(data, options);
+  }
 }
 
 /** Creates a map and adds it to the page. */
@@ -97,23 +135,24 @@ function createMap() {
 }
 
 async function getData(maxComments) {
-    if (!maxComments) maxComments = defaultMaxComments;
-    try {
-        const ret = await fetch('/data?maxComments=' + maxComments);
-        const comments = await ret.json();
-        const commentDiv = document.querySelector('#comments');
-        commentDiv.innerHTML = "";
-        comments.forEach((comment, i) =>
-            commentDiv.innerHTML += `<p>Comment ${i + 1} is ${comment}</p>`);
-    } catch (e) {
-        alert(`Hey!! There was an error: ${e?.message || e}`);
-    }
+  if (!maxComments) maxComments = defaultMaxComments;
+  try {
+      const ret = await fetch('/data?maxComments=' + maxComments);
+      const comments = await ret.json();
+      const commentDiv = document.querySelector('#comments');
+      commentDiv.innerHTML = "";
+      comments.forEach((comment, i) =>
+          commentDiv.innerHTML += `<p>Comment ${i + 1} is ${comment}</p>`);
+  } catch (e) {
+      alert(`Hey!! There was an error: ${e?.message || e}`);
+  }
 }
 
 function init() {
     composeWorld(greet)('!').split(' ').map(addHappiness).forEach(word => alert(word));
     getData();
     createMap();
+    const happinessChart = new HappinessChart('happy-regions');
 }
 
 window.onload = init;
