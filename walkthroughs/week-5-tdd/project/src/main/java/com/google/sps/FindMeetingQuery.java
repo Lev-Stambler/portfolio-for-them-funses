@@ -13,49 +13,82 @@
 // limitations under the License.
 
 package com.google.sps;
-
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Collection;
 
 public final class FindMeetingQuery {
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-    Collection<Event> restrainingEvents = filterEventsByAttendees(events, request.attendees.toArray());
-    Collection<TimeRange> startTimes = getOrderedEndTimes(events);
-    Collection<TimeRange> endTimes = getOrderedEndTimes(events);
-    Collection<TimeRange> allOpenTimes = Collections.emptySet();
-    for (Event event : events) {
-        request.attendees.
-    }
-    openTimes.add(xx)
+    Collection<Event> restrainingEvents = filterEventsByAttendees(events, request.getAttendees());
+    Collection<TimeRange> eventTimeRanges = getTimeRangesFromEvents(restrainingEvents);
+    Collection<TimeRange> occupiedTimes = getNonOverlappingTimes(eventTimeRanges);
+    return getAvailableTimes(occupiedTimes, request.getDuration());
   }
 
-  private Collection<TimeRange> getOpenTimes(Collection<TimeRange> startTimes,
-                                             Collection<TimeRange> endTimes,
+  /** checks if time overlaps with addedTimes. If it does, it will change addedTimes so that
+   *  addedTimes contains time in it without having any overlap */
+  private void mergeToAddedTimes(Collection<TimeRange> addedTimes, TimeRange time) {
+    for (TimeRange includedTime : addedTimes) {
+      if (includedTime.overlaps(time)) {
+        if (includedTime.start() > time.start() || includedTime.end() < time.end()) {
+          int newStart = includedTime.start() > time.start() ? time.start() : includedTime.start();
+          int newEnd = includedTime.end() < time.end() ? time.end() : includedTime.end();
+          addedTimes.remove(includedTime);
+          addedTimes.add(TimeRange.fromStartEnd(newStart, newEnd, false));
+        }
+        return;
+      }
+    }
+    addedTimes.add(time);
+  }
+
+  private Collection<TimeRange> getNonOverlappingTimes(Collection<TimeRange> times) {
+    Collection<TimeRange> timeRanges = new ArrayList<TimeRange>();
+    for (TimeRange t : times)
+      mergeToAddedTimes(timeRanges, t);
+    return timeRanges;
+  }
+
+  private Collection<TimeRange> getTimeRangesFromEvents(Collection<Event> events) {
+    Collection<TimeRange> timeRanges = new ArrayList<TimeRange>();
+    for (Event event : events) {
+      timeRanges.add(event.getWhen());
+    }
+    return timeRanges;
+  }
+
+  private Collection<TimeRange> getAvailableTimes(Collection<TimeRange> occupiedTimes,
                                              long duration) {
-    TimeRange openingTime = TimeRange.START_OF_DAY
+    if (occupiedTimes.size() == 0) {
+      if (TimeRange.WHOLE_DAY.duration() >= duration)
+        return Arrays.asList(TimeRange.WHOLE_DAY);
+      return Arrays.asList();
+    }
+
+    // order the times
+    Collections.sort((ArrayList<TimeRange>) occupiedTimes, TimeRange.ORDER_BY_START);
+  
+    Collection<TimeRange> availableTimes = new ArrayList<TimeRange>();
+    int availableStartTime = TimeRange.START_OF_DAY;
     
-    // TimeRange  TimeTimeRange.END_OF_DAY
-  }
-
-  private Collection<TimeRange> getOrderedEndTimes(Collection<Event> events) {
-    Collection<TimeRange> startTimes = Collection.emptySet();
-    for (Event event : events) {
-      startTimes.add(event.when);
+    // find each moment of the day which is not occupied
+    for (TimeRange occupiedTime : occupiedTimes) {
+      TimeRange openTime = TimeRange.fromStartEnd(availableStartTime, occupiedTime.start(), false);
+      if (openTime.duration() >= duration)
+        availableTimes.add(openTime);
+      availableStartTime = occupiedTime.end();
     }
-    startTimes.sort(TimeRange.ORDER_BY_END);
-    return startTimes;
+    TimeRange lastTimeOfDay = TimeRange.fromStartEnd(availableStartTime, TimeRange.END_OF_DAY, true);
+    if (lastTimeOfDay.duration() >= duration)
+      availableTimes.add(lastTimeOfDay);
+    return availableTimes;
   }
 
-  private Collection<TimeRange> getOrderedStartTimes(Collection<Event> events) {
-    Collection<TimeRange> startTimes = Collection.emptySet();
-    for (Event event : events) {
-      startTimes.add(event.when);
-    }
-    startTimes.sort(TimeRange.ORDER_BY_START);
-    return startTimes;
-  }
-
-  private Collection<Event> filterEventsByAttendees(Collection<Event> event, String[] attendees) {
-    Collection<Event> filteredEvents = Collection.emptySet();
+  /** only get the events which is attended by {@code attendees} */
+  private Collection<Event> filterEventsByAttendees(Collection<Event> events, Collection<String> attendees) {
+    Collection<Event> filteredEvents = new ArrayList<Event>();
     for (Event event : events) {
       boolean containsAttendee = false;
       for (String attendee : attendees) {
