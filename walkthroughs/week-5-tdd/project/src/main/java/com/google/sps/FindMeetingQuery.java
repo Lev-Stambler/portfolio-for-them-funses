@@ -21,7 +21,19 @@ import java.util.Collection;
 
 public final class FindMeetingQuery {
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-    Collection<Event> restrainingEvents = filterEventsByAttendees(events, request.getAttendees());
+    Collection<String> allAttendees = new ArrayList<String>();
+    allAttendees.addAll(request.getAttendees());
+    allAttendees.addAll(request.getOptionalAttendees());
+    Collection<TimeRange> openTimes = queryWithAttendees(events, request, allAttendees);
+    if (request.getAttendees().size() == 0 || openTimes.size() != 0)
+      return openTimes;
+    return queryWithAttendees(events, request, request.getAttendees());
+  }
+
+  public Collection<TimeRange> queryWithAttendees(Collection<Event> events,
+                                                  MeetingRequest request,
+                                                  Collection<String> attendees) {
+    Collection<Event> restrainingEvents = filterEventsByAttendees(events, attendees);
     Collection<TimeRange> eventTimeRanges = getTimeRangesFromEvents(restrainingEvents);
     Collection<TimeRange> occupiedTimes = getNonOverlappingTimes(eventTimeRanges);
     return getAvailableTimes(occupiedTimes, request.getDuration());
@@ -30,18 +42,23 @@ public final class FindMeetingQuery {
   /** checks if time overlaps with addedTimes. If it does, it will change addedTimes so that
    *  addedTimes contains time in it without having any overlap */
   private void mergeToAddedTimes(Collection<TimeRange> addedTimes, TimeRange time) {
+    Collection<TimeRange> overlappingTimes = new ArrayList<TimeRange>();
+    // find all overlapping times
     for (TimeRange includedTime : addedTimes) {
       if (includedTime.overlaps(time)) {
-        if (includedTime.start() > time.start() || includedTime.end() < time.end()) {
-          int newStart = includedTime.start() > time.start() ? time.start() : includedTime.start();
-          int newEnd = includedTime.end() < time.end() ? time.end() : includedTime.end();
-          addedTimes.remove(includedTime);
-          addedTimes.add(TimeRange.fromStartEnd(newStart, newEnd, false));
-        }
-        return;
+        overlappingTimes.add(includedTime);
       }
     }
-    addedTimes.add(time);
+
+    int minStart = time.start();
+    int maxEnd = time.end();
+
+    for (TimeRange t : overlappingTimes) {
+      if (t.start() < minStart) minStart = t.start();
+      if (t.end() > maxEnd) maxEnd = t.end();
+      addedTimes.remove(t);
+    }
+    addedTimes.add(TimeRange.fromStartEnd(minStart, maxEnd, false));
   }
 
   private Collection<TimeRange> getNonOverlappingTimes(Collection<TimeRange> times) {
@@ -69,7 +86,7 @@ public final class FindMeetingQuery {
 
     // order the times
     Collections.sort((ArrayList<TimeRange>) occupiedTimes, TimeRange.ORDER_BY_START);
-  
+
     Collection<TimeRange> availableTimes = new ArrayList<TimeRange>();
     int availableStartTime = TimeRange.START_OF_DAY;
     
