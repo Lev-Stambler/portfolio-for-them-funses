@@ -32,8 +32,8 @@ function addRandomGreeting() {
 /**
  * Returns a greeting function to a person
  * @param {string} name - the person to be greeted
- * @return {function} a function which has @param {string} punctuation
- *                    which then greets a person with {name} upon being called 
+ * @param {string} punctuation - the punctuation at the end of the statement
+ * @return {string} - a message which greets a person with {name} upon being called 
  */
 function greet(name, punctuation) {
   return `Hello ${name}${punctuation}`;
