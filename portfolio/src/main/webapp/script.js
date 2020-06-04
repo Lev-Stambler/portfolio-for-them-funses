@@ -35,8 +35,8 @@ function addRandomGreeting() {
  * @return {function} a function which has @param {string} punctuation
  *                    which then greets a person with {name} upon being called 
  */
-function greet(name) {
-  return (punctuation) => `Hello ${name}${punctuation}`;
+function greet(name, punctuation) {
+  return `Hello ${name}${punctuation}`;
 }
 
 /**
@@ -192,7 +192,7 @@ function createMap() {
  * called once the window loads
  */
 function init() {
-  greet('World')('!').split(' ').map(addHappiness).forEach(word => alert(word));
+  greet('World', '!').split(' ').map(addHappiness).forEach(word => alert(word));
   getData();
   createMap();
   const happinessChart = new HappinessChart('happy-regions');
