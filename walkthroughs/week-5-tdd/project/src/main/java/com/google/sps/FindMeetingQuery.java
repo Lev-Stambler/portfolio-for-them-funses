@@ -42,6 +42,13 @@ public final class FindMeetingQuery {
     return queryWithAttendees(events, request, request.getAttendees());
   }
 
+  /**
+   * Find available time ranges to meet for a specific collection of attendees
+   * @param events All events which are occuring 
+   * @param request A requested meeting with certain required and optional attendees and a duration
+   * @param attendees A collection of attendees which will be considered in finding available time ranges
+   * @return all time ranges when the {@code attendess} can meet
+   */
   private Collection<TimeRange> queryWithAttendees(Collection<Event> events,
                                                   MeetingRequest request,
                                                   Collection<String> attendees) {
@@ -91,6 +98,11 @@ public final class FindMeetingQuery {
     return timeRanges;
   }
 
+  /**
+   * Get all of the collection of times which correlate to events
+   * @param events A collection of all the events to get time ranges from
+   * @return A collection of times which correlate to events
+   */
   private Collection<TimeRange> getTimeRangesFromEvents(Collection<Event> events) {
     Collection<TimeRange> timeRanges = new ArrayList<TimeRange>();
     for (Event event : events) {
@@ -99,6 +111,14 @@ public final class FindMeetingQuery {
     return timeRanges;
   }
 
+  /**
+   * Get a collection of times which are longer than or equal to in length to the {@code duration}
+   * and which do not overlap with the {@code occupiedTImes}
+   * @param occupiedTimes A collection of times which cannot overlap with the result
+   * @param duration The minimum length of time which can be returned in the collection
+   * @return A collection of times which are longer than or equal to in length to the {@code duration}
+   * and which do not overlap with the {@code occupiedTImes}
+   */
   private Collection<TimeRange> getAvailableTimes(Collection<TimeRange> occupiedTimes,
                                              long duration) {
     if (occupiedTimes.size() == 0) {
@@ -107,7 +127,7 @@ public final class FindMeetingQuery {
       return Arrays.asList();
     }
 
-    // order the times
+    // order the times by the start
     Collections.sort((ArrayList<TimeRange>) occupiedTimes, TimeRange.ORDER_BY_START);
 
     Collection<TimeRange> availableTimes = new ArrayList<TimeRange>();
@@ -126,7 +146,13 @@ public final class FindMeetingQuery {
     return availableTimes;
   }
 
-  /** only get the events which is attended by {@code attendees} */
+  /** 
+   * Get only the events which are attended by {@code attendees}
+   * @param events A collection of events which then get filtered by attendees
+   * @param attendees A collection of attendees which must be in. One attendee must be in every
+   * returning event
+   * @return A collection of events filtered by the {@code attendees}
+   */
   private Collection<Event> filterEventsByAttendees(Collection<Event> events, Collection<String> attendees) {
     Collection<Event> filteredEvents = new ArrayList<Event>();
     for (Event event : events) {
