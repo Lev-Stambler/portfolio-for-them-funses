@@ -19,7 +19,19 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Collection;
 
+/**
+ * Class which finds a range of times when all required attendees can meet
+ * If there are no available times when an all optional attendees can meet,
+ * then only required attendees are considered in finding available times 
+ */
 public final class FindMeetingQuery {
+
+  /**
+   * Find available time ranges to meet
+   * @param events All events which are occuring 
+   * @param request A requested meeting with certain required and optional attendees and a duration
+   * @return all time ranges when the required attendess, and possibly the optional attendees, can meet
+   */
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
     Collection<String> allAttendees = new ArrayList<String>();
     allAttendees.addAll(request.getAttendees());
@@ -30,7 +42,7 @@ public final class FindMeetingQuery {
     return queryWithAttendees(events, request, request.getAttendees());
   }
 
-  public Collection<TimeRange> queryWithAttendees(Collection<Event> events,
+  private Collection<TimeRange> queryWithAttendees(Collection<Event> events,
                                                   MeetingRequest request,
                                                   Collection<String> attendees) {
     Collection<Event> restrainingEvents = filterEventsByAttendees(events, attendees);
@@ -39,8 +51,13 @@ public final class FindMeetingQuery {
     return getAvailableTimes(occupiedTimes, request.getDuration());
   }
 
-  /** checks if time overlaps with addedTimes. If it does, it will change addedTimes so that
-   *  addedTimes contains time in it without having any overlap */
+  /** 
+   * Checks if time overlaps with addedTimes. If it does, it will change addedTimes so that
+   * addedTimes contains time in it without having any overlap
+   * @param addedTimes All the {@code TimeRange} which do not overlap
+   * @param time A time to be added to {@code addedTimes}. {@code addedTimes} is changed to include time
+   * without overlapping any {@code TimeRange}
+   */
   private void mergeToAddedTimes(Collection<TimeRange> addedTimes, TimeRange time) {
     Collection<TimeRange> overlappingTimes = new ArrayList<TimeRange>();
     // find all overlapping times
@@ -61,6 +78,12 @@ public final class FindMeetingQuery {
     addedTimes.add(TimeRange.fromStartEnd(minStart, maxEnd, false));
   }
 
+  /**
+   * From a potentially overlapping collection of times, this method finds all the time ranges covered
+   * @param times A potentially overlapping collection of {@code TimeRange}
+   * @return A collection of {@code TimeRange} which covers the same times as {@code times}, but has no
+   * overlapping {@code TimeRange} 
+   */
   private Collection<TimeRange> getNonOverlappingTimes(Collection<TimeRange> times) {
     Collection<TimeRange> timeRanges = new ArrayList<TimeRange>();
     for (TimeRange t : times)
