@@ -51,6 +51,13 @@ iframe {
   padding: 1rem;
 }
 
+/**
+ * fix the chart flickering
+ */
+svg > g > g:last-child {
+  pointer-events: none;
+}
+
 .upside-down {
   transform: rotate(180deg);
   display: inline-block;
