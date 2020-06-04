@@ -75,7 +75,6 @@ public final class FindMeetingQuery {
 
     int minStart = time.start();
     int maxEnd = time.end();
-
     for (TimeRange t : overlappingTimes) {
       if (t.start() < minStart) minStart = t.start();
       if (t.end() > maxEnd) maxEnd = t.end();
@@ -131,7 +130,7 @@ public final class FindMeetingQuery {
 
     Collection<TimeRange> availableTimes = new ArrayList<TimeRange>();
     int availableStartTime = TimeRange.START_OF_DAY;
-    
+        
     // find each moment of the day which is not occupied
     for (TimeRange occupiedTime : occupiedTimes) {
       TimeRange openTime = TimeRange.fromStartEnd(availableStartTime, occupiedTime.start(), false);

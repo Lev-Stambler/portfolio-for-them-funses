@@ -102,7 +102,7 @@ public final class FindMeetingQueryTest {
     //
     // Events  :       |--A--|--C--|--B--|
     // Day     : |-----------------------------|
-    // Options : |--1--|     |--2--|     |--3--|
+    // Options : |--1--|                 |--2--|
 
     Collection<Event> events = Arrays.asList(
         new Event("Event 1", TimeRange.fromStartDuration(TIME_0800AM, DURATION_30_MINUTES),
@@ -125,13 +125,14 @@ public final class FindMeetingQueryTest {
 
   @Test
   public void onlyOptionalAttendeedNonavailable() {
-    // Have each person have different events. We should see two options because each person has
-    // split the restricted times.
+    // Have each optional attendee have different events which last the whole day.
+    // We should see no options because each person has
+    // no available time and there are no required attendees
     //
     // Events  : |--------------A--------------|
     //           |--------------B--------------|
     // Day     : |-----------------------------|
-    // Options : |--1--|     |--2--|     |--3--|
+    // Options : 
 
     Collection<Event> events = Arrays.asList(
         new Event("Event 1", TimeRange.WHOLE_DAY,
@@ -151,7 +152,7 @@ public final class FindMeetingQueryTest {
 
   @Test
   public void onlyOptionalAttendeed() {
-    // Have each person have different events. We should see two options because each person has
+    // Have each optional attendee have different events. We should see three options because each person has
     // split the restricted times.
     //
     // Events  :       |--A--|     |--B--|
@@ -179,8 +180,10 @@ public final class FindMeetingQueryTest {
 
   @Test
   public void everyAttendeeIsConsideredWithNonavailableOptionalAttendee() {
-    // Have each person have different events. We should see two options because each person has
-    // split the restricted times.
+    // Have each required attendee have different events.
+    // Have an optional attendee with a whole day event
+    // We should see three options because each required person has
+    // split the restricted times and the optional attendee cannot attend.
     //
     // Events  :       |--A--|     |--B--|
     //           |--------------C--------------|
