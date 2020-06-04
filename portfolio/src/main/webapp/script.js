@@ -19,7 +19,7 @@ let defaultMaxComments = 10;
  */
 function addRandomGreeting() {
   const greetings =
-      ['Hello world!', '¡Hola Mundo!', '你好，世界！', 'Bonjour le monde!'];
+    ['Hello world!', '¡Hola Mundo!', '你好，世界！', 'Bonjour le monde!'];
 
   // Pick a random greeting.
   const greeting = greetings[Math.floor(Math.random() * greetings.length)];
@@ -29,57 +29,116 @@ function addRandomGreeting() {
   greetingContainer.innerText = greeting;
 }
 
+/**
+ * Composes a higher order function with world
+ * @param {function} f - a function with @param {string} which @returns {function}
+ * @return {function} a composition with 'world' and the result of f
+ */
 function composeWorld(f) {
   return f('world');
 }
 
+/**
+ * Returns a greeting function to a person
+ * @param {string} name - the person to be greeted
+ * @return {function} a function which has @param {string} punctuation
+ *                    which then greets a person with {name} upon being called 
+ */
 function greet(name) {
   return (punctuation) => `Hello ${name}${punctuation}`;
 }
 
+/**
+ * Returns a happier version of an inputted string
+ * @param {string} item - a body of text
+ * @return {string} @param item with the addition of a laughing emoji
+ */
 function addHappiness(item) {
   return item + ' 😂';
 }
 
+/**
+ * Updates the max number of comments which are showing
+ * @return {void}
+ */
 async function updateMaxComments() {
   const maxComments = document.querySelector("#maxComments--number-input").value;
-  defaultMaxComments = maxComments; 
+  defaultMaxComments = maxComments;
   await getData(maxComments);
 }
 
+/**
+ * Deletes all comments which are stored in the datastore
+ */
 async function deleteComments() {
-    try {
-        const ret = await fetch('/delete-data', {
-            method: "POST"
-        })
-        alert("A truly sad day, your comments were deleted");
-        await getData();
-    } catch (e) {
-        alert("Something went wrong in deleting your comments");
-    }
+  try {
+    const ret = await fetch('/delete-data', {
+      method: "POST"
+    })
+    alert("A truly sad day, your comments were deleted");
+    await getData();
+  } catch (e) {
+    alert("Something went wrong in deleting your comments");
+  }
 }
 
-/** a map of the countries with the highest happiness score */
+/**
+ * Get the comments from the server and populate the comment DIV
+ * @param {number?} maxComments - the max number of comments to display
+ */
+async function getData(maxComments) {
+  if (!maxComments) maxComments = defaultMaxComments;
+  try {
+    const ret = await fetch('/data?maxComments=' + maxComments);
+    const comments = await ret.json();
+    const commentDiv = document.querySelector('#comments');
+    commentDiv.innerHTML = "";
+    comments.forEach((comment, i) =>
+      commentDiv.innerHTML += `<p>Comment ${i + 1} is ${comment}</p>`);
+  } catch (e) {
+    alert(`Hey!! There was an error: ${e?.message || e}`);
+  }
+}
+
+/** Class representing a map of the countries with the highest happiness score */
 class HappinessChart {
+  /**
+   * Create the happiness chart
+   * @param {string} divID - The ID of the div which will contain the chart 
+   */
   constructor(divID) {
     google.charts.load('current', {
-      'packages':['geochart'],
+      'packages': ['geochart'],
       'mapsApiKey': 'AIzaSyCQ2pBJaaQ0JIitodS6-sbHfie2Qosefxg'
     });
     google.charts.setOnLoadCallback(async () => {
       const happiestCountries = await this.getHappiestCountries();
-      console.log(happiestCountries)
       const data = this.buildDataTable(happiestCountries);
       this.drawRegionsMap(divID, data);
     });
   }
 
+  /** 
+   * Get the happiest countries from happiest_countries.json
+   * @return {[
+     [string, float]
+    ]} an array of tuples with the first element of the tuple being the name
+       and the second element being the happiness score
+   */
   async getHappiestCountries() {
     const ret = await fetch('/static/data/happiest_countries.json');
     const countries = await ret.json();
     return countries.data.map((country) => [country.name, parseFloat(country.happinessScore)])
   }
 
+  /**
+   * Build the data table
+   * @param {[
+      [string, float]
+    ]} happinessArray - an array of tuples with the first element of the tuple being the name
+       and the second element being the happiness score
+   * @return {DataTable} The created DataTable from the happiness array
+   */
   buildDataTable(happinessArray) {
     var data = new google.visualization.DataTable();
     data.addColumn('string', 'Country');
@@ -87,7 +146,11 @@ class HappinessChart {
     data.addRows(happinessArray);
     return data;
   }
-
+  /**
+   * Draws the chart within the targeted div
+   * @param {string} divID - The ID of the div which will contain the map
+   * @param {DataTable} data - The data for the happiness indexing 
+   */
   drawRegionsMap(divID, data) {
     var options = {};
     var chart = new google.visualization.GeoChart(document.getElementById(divID));
@@ -95,7 +158,9 @@ class HappinessChart {
   }
 }
 
-/** Creates a map and adds it to the page. */
+/**
+ * Creates a map of a few places where I would want to travel and adds it to the page.
+ */
 function createMap() {
   const chiangMaiCoords = {
     lat: 18.7953, lng: 98.9620
@@ -105,7 +170,7 @@ function createMap() {
   }
   const map = new google.maps.Map(
     document.getElementById('map'),
-    {center: {lat: 37.422, lng: -122.084}, zoom: 1});
+    { center: { lat: 37.422, lng: -122.084 }, zoom: 1 });
   const markerChiangMai = new google.maps.Marker({
     position: chiangMaiCoords,
     map: map,
@@ -132,25 +197,15 @@ function createMap() {
   })
 }
 
-async function getData(maxComments) {
-  if (!maxComments) maxComments = defaultMaxComments;
-  try {
-      const ret = await fetch('/data?maxComments=' + maxComments);
-      const comments = await ret.json();
-      const commentDiv = document.querySelector('#comments');
-      commentDiv.innerHTML = "";
-      comments.forEach((comment, i) =>
-          commentDiv.innerHTML += `<p>Comment ${i + 1} is ${comment}</p>`);
-  } catch (e) {
-      alert(`Hey!! There was an error: ${e?.message || e}`);
-  }
-}
-
+/**
+ * Sets up the initial messages, comments, maps, and charts
+ * called once the window loads
+ */
 function init() {
-    composeWorld(greet)('!').split(' ').map(addHappiness).forEach(word => alert(word));
-    getData();
-    createMap();
-    const happinessChart = new HappinessChart('happy-regions');
+  composeWorld(greet)('!').split(' ').map(addHappiness).forEach(word => alert(word));
+  getData();
+  createMap();
+  const happinessChart = new HappinessChart('happy-regions');
 }
 
 window.onload = init;
