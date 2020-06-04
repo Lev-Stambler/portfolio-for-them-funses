@@ -30,15 +30,6 @@ function addRandomGreeting() {
 }
 
 /**
- * Composes a higher order function with world
- * @param {function} f - a function with @param {string} which @returns {function}
- * @return {function} a composition with 'world' and the result of f
- */
-function composeWorld(f) {
-  return f('world');
-}
-
-/**
  * Returns a greeting function to a person
  * @param {string} name - the person to be greeted
  * @return {function} a function which has @param {string} punctuation
@@ -86,8 +77,7 @@ async function deleteComments() {
  * Get the comments from the server and populate the comment DIV
  * @param {number?} maxComments - the max number of comments to display
  */
-async function getData(maxComments) {
-  if (!maxComments) maxComments = defaultMaxComments;
+async function getData(maxComments = defaultMaxComments) {
   try {
     const ret = await fetch('/data?maxComments=' + maxComments);
     const comments = await ret.json();
@@ -202,7 +192,7 @@ function createMap() {
  * called once the window loads
  */
 function init() {
-  composeWorld(greet)('!').split(' ').map(addHappiness).forEach(word => alert(word));
+  greet('World')('!').split(' ').map(addHappiness).forEach(word => alert(word));
   getData();
   createMap();
   const happinessChart = new HappinessChart('happy-regions');
