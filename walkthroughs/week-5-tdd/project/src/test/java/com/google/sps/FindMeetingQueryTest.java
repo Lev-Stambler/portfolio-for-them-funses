@@ -344,7 +344,7 @@ public final class FindMeetingQueryTest {
     // Have one person, but make it so that there is just enough room at one point in the day to
     // have the meeting.
     //
-    // Events  : |--A--|     |----A----|
+    // Events  : |--A--|-B-| |----A----|
     // Day     : |---------------------|
     // Options :       |-----|
 
@@ -357,7 +357,7 @@ public final class FindMeetingQueryTest {
             Arrays.asList(PERSON_B)));
 
     MeetingRequest request = new MeetingRequest(Arrays.asList(PERSON_A), DURATION_30_MINUTES);
-    request.addOptionalAttendee(PERSON_C);
+    request.addOptionalAttendee(PERSON_B);
     Collection<TimeRange> actual = query.query(events, request);
     Collection<TimeRange> expected =
         Arrays.asList(TimeRange.fromStartDuration(TIME_0830AM, DURATION_30_MINUTES));

@@ -13,14 +13,14 @@
 // limitations under the License.
 
 package com.google.sps;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Class which finds a range of times when all required attendees can meet
- * If there are no available times when an all optional attendees can meet,
+ * If there are no available times when all optional attendees can meet,
  * then only required attendees are considered in finding available times 
  */
 public final class FindMeetingQuery {
@@ -36,8 +36,12 @@ public final class FindMeetingQuery {
     allAttendees.addAll(request.getAttendees());
     allAttendees.addAll(request.getOptionalAttendees());
     Collection<TimeRange> openTimes = queryWithAttendees(events, request, allAttendees);
-    if (request.getAttendees().size() == 0 || openTimes.size() != 0)
+    // return times which work for both required and optional attendees only if a
+    // time exists or there are no required attendees
+    if (request.getAttendees().size() == 0 || openTimes.size() != 0) {
       return openTimes;
+    }
+    // return times which work for all required attendees
     return queryWithAttendees(events, request, request.getAttendees());
   }
 
@@ -58,16 +62,16 @@ public final class FindMeetingQuery {
   }
 
   /** 
-   * Checks if time overlaps with addedTimes. If it does, it will change addedTimes so that
-   * addedTimes contains time in it without having any overlap
-   * @param addedTimes All the {@code TimeRange} which do not overlap
-   * @param time A time to be added to {@code addedTimes}. {@code addedTimes} is changed to include time
+   * Checks if time overlaps with {@code existingTimes}. If it does, it will change {@code existingTimes} so that
+   * {@code existingTimes} contains time in it without having any overlap
+   * @param existingTimes All the {@code TimeRange} which do not overlap
+   * @param time A time to be added to {@code existingTimes}. {@code existingTimes} is changed to include time
    * without overlapping any {@code TimeRange}
    */
-  private void mergeToAddedTimes(Collection<TimeRange> addedTimes, TimeRange time) {
+  private void mergeToexistingTimes(Collection<TimeRange> existingTimes, TimeRange time) {
     Collection<TimeRange> overlappingTimes = new ArrayList<TimeRange>();
     // find all overlapping times
-    for (TimeRange includedTime : addedTimes) {
+    for (TimeRange includedTime : existingTimes) {
       if (includedTime.overlaps(time)) {
         overlappingTimes.add(includedTime);
       }
@@ -78,9 +82,9 @@ public final class FindMeetingQuery {
     for (TimeRange t : overlappingTimes) {
       if (t.start() < minStart) minStart = t.start();
       if (t.end() > maxEnd) maxEnd = t.end();
-      addedTimes.remove(t);
+      existingTimes.remove(t);
     }
-    addedTimes.add(TimeRange.fromStartEnd(minStart, maxEnd, false));
+    existingTimes.add(TimeRange.fromStartEnd(minStart, maxEnd, false));
   }
 
   /**
@@ -91,8 +95,9 @@ public final class FindMeetingQuery {
    */
   private Collection<TimeRange> getNonOverlappingTimes(Collection<TimeRange> times) {
     Collection<TimeRange> timeRanges = new ArrayList<TimeRange>();
-    for (TimeRange t : times)
-      mergeToAddedTimes(timeRanges, t);
+    for (TimeRange t : times) {
+      mergeToexistingTimes(timeRanges, t);
+    }
     return timeRanges;
   }
 
@@ -120,8 +125,9 @@ public final class FindMeetingQuery {
   private Collection<TimeRange> getAvailableTimes(Collection<TimeRange> occupiedTimes,
                                              long duration) {
     if (occupiedTimes.size() == 0) {
-      if (TimeRange.WHOLE_DAY.duration() >= duration)
+      if (TimeRange.WHOLE_DAY.duration() >= duration) {
         return Arrays.asList(TimeRange.WHOLE_DAY);
+      }
       return Arrays.asList();
     }
 
@@ -139,8 +145,9 @@ public final class FindMeetingQuery {
       availableStartTime = occupiedTime.end();
     }
     TimeRange lastTimeOfDay = TimeRange.fromStartEnd(availableStartTime, TimeRange.END_OF_DAY, true);
-    if (lastTimeOfDay.duration() >= duration)
+    if (lastTimeOfDay.duration() >= duration) {
       availableTimes.add(lastTimeOfDay);
+    }
     return availableTimes;
   }
 
